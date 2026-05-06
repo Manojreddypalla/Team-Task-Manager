@@ -1,0 +1,10 @@
+---
+// This is a "smart" redirect page. 
+// It doesn't show any HTML, it just instantly routes the user.
+
+if (Astro.locals.user) {
+  return Astro.redirect('/dashboard');
+} else {
+  return Astro.redirect('/login');
+}
+---
