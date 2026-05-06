@@ -1,0 +1,22 @@
+# .env files (CRITICAL: Never commit your secrets!)
+.env
+.env.*
+!.env.example
+
+# Node.js dependencies
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Astro output directories
+dist/
+.astro/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Prisma specific
+*.sqlite
+*.sqlite-journal
