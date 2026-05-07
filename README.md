@@ -78,19 +78,69 @@ Member can:
 # Project Structure
 
 ```bash
-src/
- ├── pages/
- │    ├── admin/
- │    ├── member/
- │    ├── api/
- │
- ├── lib/
- │    └── prisma.ts
- │
- ├── middleware.ts
- │
-prisma/
- └── schema.prisma
+Team-Task-Manager/
+│
+├── prisma/
+│   ├── schema.prisma
+│   └── migrations/
+│
+├── public/
+│
+├── src/
+│   │
+│   ├── lib/
+│   │   ├── prisma.ts
+│   │   ├── auth.ts
+│   │   └── jwt.ts
+│   │
+│   ├── middleware/
+│   │   └── index.ts
+│   │
+│   ├── pages/
+│   │   │
+│   │   ├── index.astro
+│   │   ├── login.astro
+│   │   ├── create-admin.astro
+│   │   │
+│   │   ├── admin/
+│   │   │   ├── dashboard.astro
+│   │   │   ├── projects.astro
+│   │   │   ├── tasks.astro
+│   │   │   ├── users.astro
+│   │   │   │
+│   │   │   └── projects/
+│   │   │       └── [id].astro
+│   │   │
+│   │   ├── member/
+│   │   │   └── dashboard.astro
+│   │   │
+│   │   └── api/
+│   │       │
+│   │       ├── auth/
+│   │       │   ├── login.ts
+│   │       │   ├── logout.ts
+│   │       │   └── create-admin.ts
+│   │       │
+│   │       ├── projects/
+│   │       │   └── create.ts
+│   │       │
+│   │       ├── tasks/
+│   │       │   ├── create.ts
+│   │       │   └── update.ts
+│   │       │
+│   │       └── users/
+│   │           └── create.ts
+│   │
+│   └── styles/
+│
+├── .env
+├── .gitignore
+├── astro.config.mjs
+├── package.json
+├── tsconfig.json
+├── seed.cjs
+├── README.md
+└── railway.json
 ```
 
 ---
