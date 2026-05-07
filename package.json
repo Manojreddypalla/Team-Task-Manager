@@ -2,19 +2,17 @@
   "name": "irregular-chasm",
   "type": "module",
   "version": "0.0.1",
-
   "engines": {
     "node": "22.x"
   },
-
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "start": "node ./dist/server/entry.mjs"
   },
-
   "dependencies": {
+    "@astrojs/node": "^10.0.6",
     "@prisma/client": "^6.19.3",
     "@tailwindcss/vite": "^4.2.4",
     "astro": "^6.2.2",
@@ -23,7 +21,6 @@
     "prisma": "^6.19.3",
     "tailwindcss": "^4.2.4"
   },
-
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.10"
   }
