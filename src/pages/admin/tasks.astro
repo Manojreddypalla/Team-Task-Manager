@@ -1,0 +1,344 @@
+---
+import { prisma } from '../../lib/prisma';
+
+const user = Astro.locals.user;
+
+if (!user || user.role !== 'ADMIN') {
+  return Astro.redirect('/login');
+}
+
+const tasks = await prisma.task.findMany({
+  include: {
+    assignee: true,
+    project: true
+  }
+});
+
+const members = await prisma.user.findMany({
+  where: {
+    role: 'MEMBER'
+  }
+});
+
+const projects = await prisma.project.findMany();
+---
+
+<html>
+<head>
+  <title>Tasks</title>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 40px;
+      font-family: Arial;
+      background: #f3f4f6;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .btn {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    table {
+      width: 100%;
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 18px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    .status {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+    }
+
+    .pending {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .progress {
+      background: #fef3c7;
+      color: #d97706;
+    }
+
+    .completed {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      width: 400px;
+      padding: 30px;
+      border-radius: 20px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="topbar">
+
+    <div>
+      <h1>Tasks</h1>
+      <p>Manage project tasks</p>
+    </div>
+
+    <button
+      class="btn"
+      onclick="openModal()"
+    >
+      + Create Task
+    </button>
+
+  </div>
+
+  <table>
+
+    <thead>
+
+      <tr>
+        <th>Task</th>
+        <th>Project</th>
+        <th>Assigned To</th>
+        <th>Status</th>
+      </tr>
+
+    </thead>
+
+    <tbody>
+
+      {
+        tasks.map((task) => (
+
+          <tr>
+
+            <td>{task.title}</td>
+
+            <td>{task.project?.name}</td>
+
+            <td>{task.assignee?.name}</td>
+
+            <td>
+
+              <span
+                class={`status ${
+                  task.status === 'PENDING'
+                    ? 'pending'
+                    : task.status === 'IN_PROGRESS'
+                    ? 'progress'
+                    : 'completed'
+                }`}
+              >
+                {task.status}
+              </span>
+
+            </td>
+
+          </tr>
+
+        ))
+      }
+
+    </tbody>
+
+  </table>
+
+  <div
+    class="modal"
+    id="modal"
+  >
+
+    <div class="modal-content">
+      <button
+  onclick="closeModal()"
+  style="
+    float:right;
+    border:none;
+    background:none;
+    font-size:28px;
+    cursor:pointer;
+    font-weight:bold;
+  "
+>
+  &times;
+</button>
+
+      <h2>Create Task</h2>
+
+      <form id="taskForm">
+
+        <input
+          id="title"
+          placeholder="Task title"
+          required
+        />
+
+        <textarea
+          id="description"
+          placeholder="Description"
+        ></textarea>
+
+        <select id="projectId">
+
+          {
+            projects.map((project) => (
+
+              <option value={project.id}>
+                {project.name}
+              </option>
+
+            ))
+          }
+
+        </select>
+
+        <select id="assigneeId">
+
+          {
+            members.map((member) => (
+
+              <option value={member.id}>
+                {member.name}
+              </option>
+
+            ))
+          }
+
+        </select>
+
+        <select id="status">
+
+          <option value="PENDING">
+            PENDING
+          </option>
+
+          <option value="IN_PROGRESS">
+            IN_PROGRESS
+          </option>
+
+          <option value="COMPLETED">
+            COMPLETED
+          </option>
+
+        </select>
+
+        <button
+          class="btn"
+          type="submit"
+        >
+          Create
+        </button>
+
+      </form>
+
+    </div>
+
+  </div>
+<script is:inline>
+
+  const modal =
+    document.getElementById('modal');
+
+  window.openModal = function () {
+    modal.style.display = 'flex';
+  };
+
+  window.closeModal = function () {
+    modal.style.display = 'none';
+  };
+
+  const form =
+    document.getElementById('taskForm');
+
+  form?.addEventListener('submit', async (e) => {
+
+    e.preventDefault();
+
+    const res = await fetch(
+      '/api/tasks/create',
+      {
+        method: 'POST',
+
+        headers: {
+          'Content-Type': 'application/json'
+        },
+
+        body: JSON.stringify({
+
+          title:
+            document.getElementById('title').value,
+
+          description:
+            document.getElementById('description').value,
+
+          projectId:
+            document.getElementById('projectId').value,
+
+          assigneeId:
+            document.getElementById('assigneeId').value,
+
+          status:
+            document.getElementById('status').value
+
+        })
+      }
+    );
+
+    if (res.ok) {
+
+      alert('Task Created');
+
+      window.location.reload();
+
+    } else {
+
+      alert('Failed');
+
+    }
+
+  });
+
+</script>
+
+</body>
+</html>

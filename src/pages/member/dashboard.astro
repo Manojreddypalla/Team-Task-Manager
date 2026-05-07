@@ -1,0 +1,248 @@
+---
+import { prisma } from '../../lib/prisma';
+
+const user = Astro.locals.user;
+
+if (!user || user.role !== 'MEMBER') {
+  return Astro.redirect('/login');
+}
+
+const tasks = await prisma.task.findMany({
+
+  where: {
+    assigneeId: user.id
+  },
+
+  include: {
+    project: true
+  }
+
+});
+---
+
+<html>
+
+<head>
+
+  <title>Member Dashboard</title>
+
+  <style>
+
+    body {
+      margin: 0;
+      font-family: Arial;
+      background: #f3f4f6;
+      padding: 40px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .logout-btn {
+      background: red;
+      color: white;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 25px;
+    }
+
+    th {
+      text-align: left;
+      padding: 14px;
+      background: #f9fafb;
+      border-bottom: 1px solid #ddd;
+    }
+
+    td {
+      padding: 14px;
+      border-bottom: 1px solid #eee;
+    }
+
+    select {
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      min-width: 180px;
+      font-weight: bold;
+    }
+
+    .pending {
+      color: #dc2626;
+      font-weight: bold;
+    }
+
+    .progress {
+      color: #d97706;
+      font-weight: bold;
+    }
+
+    .completed {
+      color: #16a34a;
+      font-weight: bold;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="topbar">
+
+    <div>
+
+      <h1>
+        Member Dashboard
+      </h1>
+
+      <p>
+        Welcome {user.name}
+      </p>
+
+    </div>
+
+    <form
+      action="/api/auth/logout"
+      method="POST"
+    >
+
+      <button class="logout-btn">
+        Logout
+      </button>
+
+    </form>
+
+  </div>
+
+  <div class="card">
+
+    <h2>
+      My Tasks
+    </h2>
+
+    <p>
+      Update task progress
+    </p>
+
+    <table>
+
+      <tr>
+
+        <th>Task</th>
+
+        <th>Project</th>
+
+        <th>Status</th>
+
+      </tr>
+
+      {
+        tasks.map(task => (
+
+          <tr>
+
+            <td>
+              {task.title}
+            </td>
+
+            <td>
+              {task.project.name}
+            </td>
+
+            <td>
+
+              <select
+                onchange={`updateTask(this.value, '${task.id}')`}
+              >
+
+                <option
+                  value="PENDING"
+                  selected={task.status === 'PENDING'}
+                >
+                  PENDING
+                </option>
+
+                <option
+                  value="IN_PROGRESS"
+                  selected={task.status === 'IN_PROGRESS'}
+                >
+                  IN_PROGRESS
+                </option>
+
+                <option
+                  value="COMPLETED"
+                  selected={task.status === 'COMPLETED'}
+                >
+                  COMPLETED
+                </option>
+
+              </select>
+
+            </td>
+
+          </tr>
+
+        ))
+      }
+
+    </table>
+
+  </div>
+
+  <script is:inline>
+
+    async function updateTask(status, taskId) {
+
+      const res = await fetch('/api/tasks/update', {
+
+        method: 'POST',
+
+        headers: {
+          'Content-Type': 'application/json'
+        },
+
+        body: JSON.stringify({
+          taskId,
+          status
+        })
+
+      });
+
+      if (res.ok) {
+
+        window.location.reload();
+
+      } else {
+
+        alert('Failed to update');
+
+      }
+
+    }
+
+    window.updateTask = updateTask;
+
+  </script>
+
+</body>
+
+</html>

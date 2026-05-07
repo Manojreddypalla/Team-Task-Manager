@@ -1,0 +1,99 @@
+
+---
+const user = Astro.locals.user;
+
+if (!user || user.role !== 'ADMIN') {
+  return Astro.redirect('/login');
+}
+---
+
+<html>
+<head>
+  <title>Admin Dashboard</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+      background: #f3f4f6;
+      padding: 40px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 40px;
+    }
+
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    button {
+      background: red;
+      color: white;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="topbar">
+
+    <div>
+      <h1>Admin Dashboard</h1>
+      <p>Welcome {user.name}</p>
+    </div>
+
+    <form action="/api/auth/logout" method="POST">
+      <button>Logout</button>
+    </form>
+
+  </div>
+
+  <div class="cards">
+
+    <a href="/admin/projects">
+      <div class="card">
+        <h2>Projects</h2>
+        <p>Create and manage projects</p>
+      </div>
+    </a>
+
+    <a href="/admin/tasks">
+      <div class="card">
+        <h2>Tasks</h2>
+        <p>Assign tasks to members</p>
+      </div>
+    </a>
+
+    <a href="/admin/users">
+      <div class="card">
+        <h2>Users</h2>
+        <p>Create and manage members</p>
+      </div>
+    </a>
+
+  </div>
+
+</body>
+</html>
