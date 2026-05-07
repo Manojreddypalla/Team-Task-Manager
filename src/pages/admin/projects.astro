@@ -7,14 +7,25 @@ if (!user || user.role !== 'ADMIN') {
   return Astro.redirect('/login');
 }
 
-const projects = await prisma.project.findMany();
+const projects = await prisma.project.findMany({
+
+  include: {
+    tasks: true
+  }
+
+});
 ---
 
 <html>
+
 <head>
-  <title>Projects</title>
+
+  <title>
+    Projects
+  </title>
 
   <style>
+
     body {
       margin: 0;
       padding: 40px;
@@ -23,60 +34,201 @@ const projects = await prisma.project.findMany();
     }
 
     .topbar {
+
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 30px;
+
+      margin-bottom: 40px;
+
     }
 
     .btn {
+
       background: #2563eb;
       color: white;
+
       border: none;
-      padding: 12px 20px;
-      border-radius: 10px;
+
+      padding: 14px 22px;
+
+      border-radius: 12px;
+
       cursor: pointer;
+
+      font-weight: bold;
+
+      font-size: 15px;
+
     }
 
     .grid {
+
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
+
+      grid-template-columns:
+        repeat(auto-fit, minmax(320px, 1fr));
+
+      gap: 25px;
+
+    }
+
+    .project-link {
+
+      text-decoration: none;
+      color: inherit;
+
     }
 
     .card {
+
       background: white;
-      padding: 25px;
-      border-radius: 20px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+
+      border-radius: 24px;
+
+      padding: 30px;
+
+      min-height: 200px;
+
+      box-shadow:
+        0 10px 25px rgba(0,0,0,0.08);
+
+      display: flex;
+
+      flex-direction: column;
+
+      justify-content: space-between;
+
+      transition: 0.2s ease;
+
+      border: 2px solid transparent;
+
+    }
+
+    .card:hover {
+
+      transform: translateY(-6px);
+
+      border-color: #2563eb;
+
+      box-shadow:
+        0 15px 35px rgba(37,99,235,0.15);
+
+    }
+
+    .project-title {
+
+      font-size: 28px;
+
+      font-weight: bold;
+
+      margin-bottom: 15px;
+
+      color: #111827;
+
+    }
+
+    .project-description {
+
+      color: #6b7280;
+
+      line-height: 1.6;
+
+      font-size: 15px;
+
+    }
+
+    .task-count {
+
+      margin-top: 25px;
+
+      background: #eff6ff;
+
+      color: #2563eb;
+
+      width: fit-content;
+
+      padding: 10px 16px;
+
+      border-radius: 999px;
+
+      font-weight: bold;
+
+      font-size: 14px;
+
     }
 
     .modal {
+
       position: fixed;
+
       inset: 0;
+
       background: rgba(0,0,0,0.5);
+
       display: none;
+
       justify-content: center;
+
       align-items: center;
+
     }
 
     .modal-content {
+
       background: white;
+
       width: 400px;
+
       padding: 30px;
+
       border-radius: 20px;
+
+      position: relative;
+
     }
 
-    input, textarea {
+    .close-btn {
+
+      position: absolute;
+
+      right: 20px;
+      top: 15px;
+
+      border: none;
+
+      background: none;
+
+      font-size: 28px;
+
+      cursor: pointer;
+
+      font-weight: bold;
+
+    }
+
+    input,
+    textarea {
+
       width: 100%;
-      padding: 12px;
+
+      padding: 14px;
+
       margin-top: 10px;
       margin-bottom: 20px;
-      border-radius: 10px;
+
+      border-radius: 12px;
+
       border: 1px solid #ccc;
+
       box-sizing: border-box;
+
+      font-size: 15px;
+
     }
+
   </style>
+
 </head>
 
 <body>
@@ -84,8 +236,15 @@ const projects = await prisma.project.findMany();
   <div class="topbar">
 
     <div>
-      <h1>Projects</h1>
-      <p>Manage projects</p>
+
+      <h1>
+        Projects
+      </h1>
+
+      <p>
+        Manage projects
+      </p>
+
     </div>
 
     <button
@@ -102,15 +261,35 @@ const projects = await prisma.project.findMany();
     {
       projects.map((project) => (
 
-        <div class="card">
+        <a
+          href={`/admin/project/${project.id}`}
+          class="project-link"
+        >
 
-          <h2>{project.name}</h2>
+          <div class="card">
 
-          <p>
-            {project.description}
-          </p>
+            <div>
 
-        </div>
+              <div class="project-title">
+                {project.name}
+              </div>
+
+              <div class="project-description">
+                {project.description}
+              </div>
+
+            </div>
+
+            <div class="task-count">
+
+              {project.tasks.length}
+              Tasks
+
+            </div>
+
+          </div>
+
+        </a>
 
       ))
     }
@@ -121,35 +300,19 @@ const projects = await prisma.project.findMany();
     class="modal"
     id="modal"
   >
-  <button
-  onclick="closeModal()"
-  style="
-    float:right;
-    border:none;
-    background:none;
-    font-size:20px;
-    cursor:pointer;
-  "
->
-  ✕
-</button>
 
     <div class="modal-content">
- <button
-  onclick="closeModal()"
-  style="
-    float:right;
-    border:none;
-    background:none;
-    font-size:28px;
-    cursor:pointer;
-    font-weight:bold;
-  "
->
-  &times;
-</button>
 
-      <h2>Create Project</h2>
+      <button
+        class="close-btn"
+        onclick="closeModal()"
+      >
+        &times;
+      </button>
+
+      <h2>
+        Create Project
+      </h2>
 
       <form id="projectForm">
 
@@ -176,74 +339,72 @@ const projects = await prisma.project.findMany();
     </div>
 
   </div>
-<script is:inline>
 
-  const modal =
-    document.getElementById('modal');
+  <script is:inline>
 
-  window.openModal = function () {
+    const modal =
+      document.getElementById('modal');
 
-    modal.style.display = 'flex';
+    window.openModal = function () {
 
-  };
-
-  window.closeModal = function () {
-
-    modal.style.display = 'none';
-
-  };
-
-  const form =
-    document.getElementById('projectForm');
-
-  form?.addEventListener('submit', async (e) => {
-
-    e.preventDefault();
-
-    const data = {
-
-      name:
-        document.getElementById('name').value,
-
-      description:
-        document.getElementById('description').value
+      modal.style.display = 'flex';
 
     };
 
-    const res = await fetch(
-      '/api/projects/create',
-      {
+    window.closeModal = function () {
 
-        method: 'POST',
+      modal.style.display = 'none';
 
-        headers: {
-          'Content-Type': 'application/json'
-        },
+    };
 
-        body: JSON.stringify(data)
+    const form =
+      document.getElementById('projectForm');
+
+    form?.addEventListener('submit', async (e) => {
+
+      e.preventDefault();
+
+      const data = {
+
+        name:
+          document.getElementById('name').value,
+
+        description:
+          document.getElementById('description').value
+
+      };
+
+      const res = await fetch(
+        '/api/projects/create',
+        {
+
+          method: 'POST',
+
+          headers: {
+            'Content-Type': 'application/json'
+          },
+
+          body: JSON.stringify(data)
+
+        }
+      );
+
+      if (res.ok) {
+
+        alert('Project Created');
+
+        window.location.reload();
+
+      } else {
+
+        alert('Failed');
 
       }
-    );
 
-    if (res.ok) {
+    });
 
-      alert('Project Created');
-
-      window.location.reload();
-
-    } else {
-
-      const text = await res.text();
-
-      console.log(text);
-
-      alert('Failed');
-
-    }
-
-  });
-
-</script>
+  </script>
 
 </body>
+
 </html>
