@@ -1,66 +1,150 @@
-
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width" />
-  <title>TaskSphere Login</title>
+
+  <meta
+    name="viewport"
+    content="width=device-width"
+  />
+
+  <title>
+    TaskSphere Login
+  </title>
 
   <style>
+
     body {
+
       margin: 0;
+
       font-family: Arial, sans-serif;
+
       background: #f3f4f6;
+
       height: 100vh;
+
       display: flex;
+
       justify-content: center;
+
       align-items: center;
+
     }
 
     .card {
+
       background: white;
+
       padding: 40px;
-      border-radius: 20px;
+
+      border-radius: 24px;
+
       width: 400px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+
+      box-shadow:
+        0 10px 30px rgba(0,0,0,0.1);
+
     }
 
     h1 {
+
       text-align: center;
+
       color: #2563eb;
+
       margin-bottom: 30px;
+
+      font-size: 38px;
+
     }
 
     input {
+
       width: 100%;
+
       padding: 14px;
+
       margin-bottom: 15px;
+
       border: 1px solid #ccc;
+
       border-radius: 10px;
+
       box-sizing: border-box;
+
+      font-size: 15px;
+
     }
 
     button {
+
       width: 100%;
+
       padding: 14px;
+
       border: none;
+
       background: #2563eb;
+
       color: white;
+
       border-radius: 10px;
+
       cursor: pointer;
+
       font-size: 16px;
+
+      font-weight: bold;
+
+      transition: 0.2s;
+
     }
 
     button:hover {
+
       background: #1d4ed8;
+
     }
+
+    .register-link {
+
+      text-align: center;
+
+      margin-top: 22px;
+
+    }
+
+    .register-link a {
+
+      color: #2563eb;
+
+      text-decoration: none;
+
+      font-weight: bold;
+
+      font-size: 15px;
+
+    }
+
+    .register-link a:hover {
+
+      text-decoration: underline;
+
+    }
+
   </style>
+
 </head>
 
 <body>
 
   <div class="card">
 
-    <h1>TaskSphere</h1>
+    <h1>
+      TaskSphere
+    </h1>
 
     <form id="loginForm">
 
@@ -84,12 +168,23 @@
 
     </form>
 
+    <div class="register-link">
+
+      <a href="/register-admin">
+        Create Admin Account
+      </a>
+
+    </div>
+
   </div>
 
-  <script>
-    const form = document.getElementById('loginForm');
+  <script is:inline>
+
+    const form =
+      document.getElementById('loginForm');
 
     form?.addEventListener('submit', async (e) => {
+
       e.preventDefault();
 
       const email =
@@ -99,23 +194,37 @@
         document.getElementById('password').value;
 
       const res = await fetch('/api/auth/login', {
+
         method: 'POST',
+
         headers: {
           'Content-Type': 'application/json'
         },
+
         body: JSON.stringify({
+
           email,
           password
+
         })
+
       });
 
       if (res.ok) {
-        window.location.href = '/dashboard';
+
+        window.location.href =
+          '/dashboard';
+
       } else {
+
         alert('Invalid credentials');
+
       }
+
     });
+
   </script>
 
 </body>
+
 </html>
